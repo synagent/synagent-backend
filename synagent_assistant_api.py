@@ -1,12 +1,13 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import openai
 import os
 
+# Create the FastAPI app
 app = FastAPI()
 
-# Allow all origins (adjust as needed for production)
+# Enable CORS for all origins (adjust for production)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,12 +16,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Set your OpenAI API key from environment variable
+# Set the OpenAI API key from environment variables
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+# ✅ ROOT ROUTE (Fix for 404 error)
+@app.get("/")
+async def root():
+    return {"message": "SynAgent API is running 🚀"}
+
+# Data model for the incoming POST /ask request
 class Message(BaseModel):
     question: str
 
+# Main assistant route
 @app.post("/ask")
 async def ask_question(message: Message):
     try:
